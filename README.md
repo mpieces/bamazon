@@ -1,5 +1,5 @@
 # bamazon
-Node.js &amp; mysql app
+Node.js &amp; MySQL e-commerce app
 ## About The Project
 ![bamazon][product-screenshot]
 
