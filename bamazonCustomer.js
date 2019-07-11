@@ -13,7 +13,7 @@ connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId + "\n");
     readProducts();
-    start();
+    buy();
 });
 
 function readProducts() {
@@ -25,24 +25,51 @@ function readProducts() {
     });
 }
 
-// function which prompts the user for what action they should take
-function start() {
+function buy() {
     inquirer
-      .prompt({
-        name: "postOrBid",
-        type: "list",
-        message: "Would you like to [POST] an auction or [BID] on an auction?",
-        choices: ["POST", "BID", "EXIT"]
-      })
+      .prompt([
+        {
+          name: "item_id",
+          type: "input",
+          message: "What is the id of the product you would like to buy?",
+          //loop through and display product id's again?
+          validate: function(value) {
+            if (isNaN(value) === false) {
+              return true;
+            }
+            return false;
+          }
+        },
+        {
+          name: "units",
+          type: "input",
+          message: "How many units would you like to buy?",
+          validate: function(value) {
+            if (isNaN(value) === false) {
+              return true;
+            }
+            return false;
+          }
+        }
+      ])
       .then(function(answer) {
-        // based on their answer, either call the bid or the post functions
-        if (answer.postOrBid === "POST") {
-          postAuction();
-        }
-        else if(answer.postOrBid === "BID") {
-          bidAuction();
-        } else{
-          connection.end();
-        }
+        // when finished prompting, check if store has enough product to meet customer's request
+        // if quantity of item with that id < store's quantity, can proceed with transaction
+            // show customer total cost of purchase and update store's inventory
+        // else, insufficient quantity and prevent order from going through
+        connection.query(
+          "INSERT INTO auctions SET ?",
+          {
+            item_name: answer.item,
+            category: answer.category,
+            starting_bid: answer.startingBid || 0,
+            highest_bid: answer.startingBid || 0
+          },
+          function(err) {
+            if (err) throw err;
+            console.log("Your auction was created successfully!");
+        
+          }
+        );
       });
   }
