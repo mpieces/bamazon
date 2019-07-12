@@ -22,10 +22,11 @@ function readProducts() {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         console.table(res);
+        // instead of grabbing information from table again, promptforid takes the result as parameter
         promptForId(res);
     });
 }
-
+// inventory  = whole table
 function promptForId(inventory) {
     inquirer
       .prompt([
@@ -62,6 +63,7 @@ function promptForId(inventory) {
     //       }
     //     );
     var id = parseInt(answer.item_id);
+    // product = whole row resulting from checkinventory fxn
     var product = checkInventory(id, inventory);
     if(product){
         promptForQuantity(product);
@@ -77,6 +79,7 @@ function promptForId(inventory) {
   function checkInventory(id, inventory){
       for(var i=0; i< inventory.length; i++){
           if(inventory[i].item_id === id){
+              // return row of table
               return inventory[i];
           }
       }
@@ -113,6 +116,10 @@ function promptForId(inventory) {
 
   function makePurchase(product, quantity){
       console.log("make purchase");
+      connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id= ?",[quantity, product.item_id], function(err, res){
+        console.log("successfully purchased " +quantity + " " +product.product_name +" which costs: " + product.price * quantity);
+        //readProducts();
+      })
 
 
   }
