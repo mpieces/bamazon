@@ -16,9 +16,9 @@ connection.connect(function (err) {
     }
     console.log("connected as id " + connection.threadId + "\n");
     readProducts();
-    //buy();
 });
 
+// Shows table of all products, same as in customer view
 function readProducts() {
     console.log("Selecting all products.....\n");
     connection.query("SELECT * FROM products", function (err, res) {
@@ -57,12 +57,14 @@ function loadManagerOptions(res) {
                     break;
                 default:
                     console.log("Enter the correct option");
+                    // control C to quit server
                     process.exit(0);
                     break;
             }
         });
 }
 
+// To view low inventory items (items with a quantity of 3 or less)
 function lowInventory() {
     connection.query("SELECT * FROM products WHERE stock_quantity <= 3", function (err, res) {
         if (err) throw err;
@@ -86,40 +88,44 @@ function addToInventory(res) {
         }])
         .then(function (answer) {
             var id = parseInt(answer.id);
-            // product = whole row resulting from checkinventory fxn
             var product = checkInventory(id, res);
             if (product) {
                 promptForQuantity(product);
             } else {
                 console.log("the item id is invalid");
                 readProducts();
-
             }
-
         });
-
 };
 
-function promptForQuantity(product){
-    inquirer
-    .prompt([
-      {
-        name: "units",
-        type: "input",
-        message: "How many units would you like to add?",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        }
+function checkInventory(id, inventory) {
+    for (var i = 0; i < inventory.length; i++) {
+      if (inventory[i].item_id === id) {
+        // return row of table
+        return inventory[i];
       }
-    ])
-    .then(function(answer) {
-        var quantity = parseInt(answer.units);
-        connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ? ", [product.stock_quantity + quantity, product.item_id], function(err, res) {
-            console.log("Successfully added " + quantity + "  " +product.product_name);
-        })
-    
-    });
+    }
+    return null;
   }
+
+function promptForQuantity(product) {
+    inquirer
+        .prompt([{
+            name: "units",
+            type: "input",
+            message: "How many units would you like to add?",
+            validate: function (value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        }])
+        .then(function (answer) {
+            var quantity = parseInt(answer.units);
+            connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ? ", [product.stock_quantity + quantity, product.item_id], function (err, res) {
+            console.log("Successfully added " + quantity + "  " + product.product_name);
+            readProducts();
+            })
+        });
+}
