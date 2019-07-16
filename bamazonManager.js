@@ -129,3 +129,18 @@ function promptForQuantity(product) {
             })
         });
 }
+
+function addNewProduct(res) {
+    inquirer
+        .prompt([{
+            name: "product",
+            type: "input",
+            message: "What is the name of the item you would like to add?",
+        }])
+        .then(function (answer) {
+            // var new_product_name = answer.product;
+            connection.query("INSERT INTO products(product_name) VALUES (?)", [answer.product], function(err, res) {
+            console.log("Successfully added " + answer.product + " to inventory.");
+            })
+        });
+};
