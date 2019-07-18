@@ -40,6 +40,13 @@ npm install
 1. Customer View: `node bamazonCustomer.js`
 2. Manager View: `node bamazonManager.js`
 
+## Screenshots:
+![Image 1](images/1.png)
+![Image 2](images/2.png)
+![Image 3](images/3.png)
+![Image 4](images/4.png)
+![Image 5](images/5.png)
+
 ## Contact
 Marisa Ramon - [LinkedIn](https://www.linkedin.com/in/marisaramon/) - mer0522@gmail.com
 
