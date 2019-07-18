@@ -64,9 +64,9 @@ function loadManagerOptions(res) {
         });
 }
 
-// To view low inventory items (items with a quantity of 3 or less)
+// To view low inventory items (items with a quantity of less than 5 )
 function lowInventory() {
-    connection.query("SELECT * FROM products WHERE stock_quantity <= 3", function (err, res) {
+    connection.query("SELECT * FROM products WHERE stock_quantity < 5", function (err, res) {
         if (err) throw err;
         console.table(res);
         //readProducts();
@@ -100,13 +100,13 @@ function addToInventory(res) {
 
 function checkInventory(id, inventory) {
     for (var i = 0; i < inventory.length; i++) {
-      if (inventory[i].item_id === id) {
-        // return row of table
-        return inventory[i];
-      }
+        if (inventory[i].item_id === id) {
+            // return row of table
+            return inventory[i];
+        }
     }
     return null;
-  }
+}
 
 function promptForQuantity(product) {
     inquirer
@@ -124,8 +124,8 @@ function promptForQuantity(product) {
         .then(function (answer) {
             var quantity = parseInt(answer.units);
             connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ? ", [product.stock_quantity + quantity, product.item_id], function (err, res) {
-            console.log("Successfully added " + quantity + "  " + product.product_name);
-            readProducts();
+                console.log("Successfully added " + quantity + "  " + product.product_name);
+                readProducts();
             })
         });
 }
@@ -133,14 +133,30 @@ function promptForQuantity(product) {
 function addNewProduct(res) {
     inquirer
         .prompt([{
-            name: "product",
-            type: "input",
-            message: "What is the name of the item you would like to add?",
-        }])
+                name: "product",
+                type: "input",
+                message: "What is the name of the item you would like to add?"
+            },
+            {
+                name: "department_name",
+                type: "input",
+                message: "What department does it belong to?"
+            },
+            {
+                name: "price",
+                type: "input",
+                message: "What is the price?"
+            },
+            {
+                name: "quantity",
+                type: "input",
+                message: "How many are you adding?"
+            }
+        ])
         .then(function (answer) {
-            // var new_product_name = answer.product;
-            connection.query("INSERT INTO products(product_name) VALUES (?)", [answer.product], function(err, res) {
-            console.log("Successfully added " + answer.product + " to inventory.");
+            connection.query("INSERT INTO products(product_name, department_name, price, stock_quantity) VALUES (?, ?, ?, ?)", [answer.product, answer.department_name, answer.price, answer.quantity], function (err, res) {
+                console.log("Successfully added " + answer.quantity + " " + answer.product + " to inventory.");
+                readProducts();
             })
         });
 };
